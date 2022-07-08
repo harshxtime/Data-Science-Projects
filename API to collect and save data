@@ -1,0 +1,87 @@
+import seaborn as sns
+sns.set()
+import matplotlib
+matplotlib.rcParams['savefig.dpi'] = 144
+import requests
+import datetime as dt
+from datetime import datetime
+from datetime import date, timedelta
+import pandas as pd
+import collections
+import dill
+from datetime import datetime as dt
+from collections import Counter
+import json
+from bs4 import BeautifulSoup
+import requests
+from requests_futures.sessions import FuturesSession
+import dill
+import re
+import sys
+import spacy
+
+#Getting the parties
+#requests.get("https://party-captions.tditrain.com/parties?limit=100").json()
+
+url = "https://party-captions.tditrain.com/parties?limit=100"
+social_list=[]
+offset=0
+limit=100
+while True:
+    
+    url = f"https://party-captions.tditrain.com/parties?offset={offset}&limit={limit}"
+    print('requesting.. ', url)
+    response=requests.get(url)
+    data=response.json()
+    try:
+        print(data['parties'][0])
+    except:
+        print("No data left to Grab!!, Recording the Data")
+    if len(data['parties']) == 0:
+        break
+    social_list.extend(data['parties'])
+    offset= offset+100
+    
+    
+#Now saving it
+so_ex=[]
+for i in data['parties']:
+    so_ex.append(i)
+so_ex=pd.DataFrame(social_list)
+so_ex['date'] = pd.to_datetime(so_ex['date'], format='%Y-%m-%d')
+so_ex.sort_values(by='date', inplace=True)
+
+start=date(2007,2,21)
+end=date(2014,12,1)
+indextill2014= []
+count=0
+for s in so_ex['date']:
+    if (s >= start) & (s <= end):
+        indextill2014.append(count)
+        #print(s)
+    count +=1
+so_ex_filtered=so_ex.iloc[indextill2014]
+so_ex_filtered['date']
+
+## Names and people in the party
+def get_captions(party_name):
+    url= f"https://party-captions.tditrain.com/captions?party={party_name}"
+    caption = requests.get(url)
+    caption = caption.json()
+    #captionlist=pd.DataFrame(captions)
+    return caption
+    output=[]
+capt12=[]
+for x in party_list['name']:
+    if x not in output:
+        output.append(x)
+        try:
+            caps=get_captions(x)
+        except:
+            time.sleep(2)
+            try:
+                caps=get_captions(x)
+            except:
+                pass
+        capt12.extend(caps['captions'])
+        capt12
